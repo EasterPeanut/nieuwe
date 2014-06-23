@@ -25,7 +25,7 @@ function onDeviceReady() {
             element.innerHTML = 'Device UUID: '+ device.uuid;
             if(typeof id === 'undefined'){
                 console.log("kak");
-               id = device.uuid;
+               id = "a45cc63c19129870";
             };
             updateUserInfo();
             isDeviceReady = true;

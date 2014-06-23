@@ -315,7 +315,7 @@ function setMessageToUser(lat, lng, idto) {
 $(document).on('submit','#submitForm', function(e) { 
     e.preventDefault(); //
   $.ajax({
-      url: 'postmessage.php', // form action url
+      url: 'http://pixes.nl/postmessage.php', // form action url
       type: 'POST', // form submit method get/post
       dataType: 'html', // request type html/json/xml
       data: $('#submitForm').serialize(), // serialize form data 

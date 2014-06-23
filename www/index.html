@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4643 -->
+        <meta name="viewport" content="width=device-width, initial-scale=1"> 
+        <title>Noble</title>
+
+        <link rel="stylesheet" href="css/jquery.mobile.custom.structure.min.css">
+        <link rel="stylesheet" href="css/jquery.mobile.noble.min.css">
+        <link rel="stylesheet" href="css/fonts/stylesheet.css">
+        <link rel="stylesheet" href="css/tomstyle.css">
+        <link rel="stylesheet" href="css/pienstyle.css">
+
+        <script src="js/jquery-1.8.3.min.js"></script>
+        <script src="js/jquery.mobile.custom.min.js"></script>
+
+        <script src="js/functions.js"></script>
+
+        <link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="js/googlemaps.js"></script>
+
+
+        <script type="text/javascript" charset="utf-8">
+        var positionn;
+        // Wait for device API libraries to load
+        //
+        document.addEventListener("deviceready", onDeviceReady, false);
+        
+        $(function(){
+            getGeolocation();
+        });
+        // device APIs are available
+        //
+        function onDeviceReady() {
+            var element = document.getElementById('deviceProperties');
+            element.innerHTML = 'Device UUID: '+ device.uuid;
+            setuserID(device.uuid);
+            updateUserInfo();
+            isDeviceReady = true;
+        }
+        function getGeolocation() {
+            navigator.geolocation.getCurrentPosition(onGetGeolocationSuccess, onGetGeolocationError);
+
+        }
+        function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+          var R = 6371; // Radius of the earth in km
+          var dLat = deg2rad(lat2-lat1);  // deg2rad below
+          var dLon = deg2rad(lon2-lon1); 
+          var a = 
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+            Math.sin(dLon/2) * Math.sin(dLon/2)
+            ; 
+          var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+          var d = R * c; // Distance in km
+          return d;
+        }
+        function deg2rad(deg) {
+            return deg * (Math.PI/180)
+        }
+        function checkDistance (position) {
+       
+            var di = getDistanceFromLatLonInKm(position.coords.latitude,position.coords.longitude,mycookieLat,mycookieLng);
+            console.log("afstand"+di);
+            if(di > 0.0005) { //50 meters
+            updateUserInfo();
+            } else {
+                console.log("te korte afstand voor update")
+            }
+        }
+        function onGetGeolocationSuccess(position){
+            checkDistance(position);
+            
+            /*html = "Latitude: " + position.coords.latitude + "<br />" +
+            "Longitude: " + position.coords.longitude + "<br />" +
+            "Altitude: " + position.coords.altitude + "<br />" + 
+            "Accuracy: " + position.coords.accuracy + "<br />" + 
+            "Altitude Accuracy: " + position.coords.altitudeAccuracy + "<br />" + 
+            "Heading: " + position.coords.heading + "<br />" + 
+            "Speed: " + position.coords.speed + "<br />" + 
+            "Timestamp: " + new Date(position.timestamp) + "<br />"; 
+            $("#dGeolocation").html(html);
+            */myLat = position.coords.latitude;
+            myLng = position.coords.longitude;
+             updateUserInfo();
+            positionn = position;
+             loadMarkers(position.coords.latitude,position.coords.longitude, function(data) {  
+                    console.log("callback called! " + data);
+                    initialize(position);
+                    loadMap(data, position);
+                }); 
+        }
+        var myVar=setInterval(function(){updateMarkers(); getGeolocation();},20000);
+
+       
+        function updateMarkers() {
+             loadMarkers(myLat,myLng, function(data) {  
+                            console.log("tesstx " + data);
+                        clearOverlays();
+                            loadMap(data, positionn);
+                             });
+             
+        }
+        function onGetGeolocationError(error)
+        {
+        html = "Error code: " + error.code + "<br />" + 
+        "Error message: " + error.message + "<br />";
+        $("#dGeolocation").html(html);
+        }
+        </script>
+    </head>
+    <body>
+        
+         <!-- PAGE 0 -->
+        <div data-role="page" id="page0" data-url="page0">
+            <!-- header -->
+            <div data-role="header" data-position="fixed">
+                <div class="logo">
+                    <img src="img/logo.png" class="ui-btn-left" />
+                </div>
+
+                <h1>Welcome to Noble</h1>
+            </div>
+            <!-- end of header -->
+            <!-- main content -->
+            <div data-role="main" class="ui-content"  style="overflow:hidden;">
+                <h2>Login to start complimenting</h2>
+                <button class="facebookbutton" onclick="login()"><img src="img/facebook_1.png" />Login with Facebook</button>
+                <a href="#page1">Or skip this step to be anonymous</a>
+                <p id="deviceProperties">Loading properties...</p>
+                
+
+            </div>
+            <!-- end of main content -->
+        </div>
+        <!-- END OF PAGE 0 -->
+        <!-- PAGE 5 -->
+        <div data-role="page" id="page5">
+            <!-- header -->
+            <div data-role="header" data-position="fixed">
+                <div class="logo">
+                      <a href="#page1"><img src="img/logo.png" class="ui-btn-left" /></a>
+                </div>
+                <h1>Your settings</h1>
+                 <div class="settings">
+                    <a class="back" href=""><img  src="img/circle_left.png"  /></a>
+                </div>
+            </div>
+            <!-- end of header -->
+            <!-- main content -->
+            <div data-role="main" class="ui-content"  style="overflow:hidden;">
+                <h2>Disconnect Noble from Facebook</h2>
+               
+                <button class="facebookbutton" onclick="revoke()"><img src="img/facebook_1.png" />Disconnect Facebook account</button>
+
+            </div>
+            <!-- end of main content -->
+        </div>
+        <!-- END OF PAGE 5 -->
+        <!-- PAGE 1 -->
+        <div data-role="page" id="page1" data-url="page1">
+            <!-- header -->
+            <div data-role="header" data-position="fixed">
+
+                <div class="logo">
+                    <a href="#page1"><img src="img/logo.png" class="ui-btn-left" /></a>
+                </div>
+                <h1>People near you</h1>
+                <div class="settings">
+                    <a class="settingslink" href="#page5"><img  src="img/cog.png"  /></a>
+                </div>
+                
+            </div>
+            <!-- end of header -->
+            <!-- main content -->
+            <div data-role="main" class="ui-content" id="map_canvas" style="overflow:hidden;">
+                <p>Finding geolocation...</p>
+            </div>
+            <!-- end of main content -->
+            <!-- footer -->
+            <div data-role="footer" data-position="fixed">
+                <nav data-role="navbar" class="ui-navbar" role="navigation">
+                    <ul>
+                        <li>
+                            <a href="#page1" class="ui-btn-active ui-state-persist">
+                                <div class="not-marker not">
+                                    0
+                                </div>
+                                <img src="img/globe.png" alt="globe">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#page2" data-transition="slide">
+                                <div class="not-received not">
+                                    0
+                                </div>
+                                <img src="img/inbox_in.png" alt="inbox_in">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#page3" data-transition="slide">
+                                <div class="not-sent not">
+                                    0
+                                </div>
+                                <img src="img/inbox_out.png" alt="inbox_out">
+                            </a>
+                        </li>
+                    </ul>
+                </nav>     
+            </div>
+            <!-- end footer -->
+        </div>
+        <!-- END OF PAGE 1 -->
+        
+
+        <!-- PAGE 2 -->
+        <div data-role="page" id="page2">
+            <!-- header -->
+            <div data-role="header" data-position="fixed">
+                <div class="logo">
+                    <a href="#page1"><img src="img/logo.png" class="ui-btn-left" /></a>
+                </div>
+                <h1>Received messages</h1>
+                <div class="settings">
+                    <a class="settingslink" href="#page5"><img  src="img/cog.png"  /></a>
+                </div>
+                
+            </div>
+            <!-- end of header -->
+            <!-- main content -->
+            <div data-role="main" class="ui-content">
+                <ul data-role="listview" class="page2-list">
+                </ul>
+            </div>
+            <!-- end of main content -->
+            <!-- footer -->
+            <div data-role="footer" data-position="fixed">
+                <nav data-role="navbar" class="ui-navbar" role="navigation">
+                    <ul>
+                        <li>
+                            <a href="#page1" data-transition="slide" data-direction="reverse">
+                                 <div class="not-marker not">
+                                    0
+                                </div>
+                                <img src="img/globe.png" alt="globe">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#page2" class="ui-btn-active ui-state-persist">
+                                 <div class="not-received not">
+                                    0
+                                </div>
+                                <img src="img/inbox_in.png" alt="inbox_in">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#page3" data-transition="slide">
+                                 <div class="not-sent not">
+                                    0
+                                </div>
+                                <img src="img/inbox_out.png" alt="inbox_out">
+                            </a>
+                        </li>
+                    </ul>
+                </nav>     
+            </div>
+            <!-- end footer -->
+        </div>
+        <!-- END OF PAGE 2 -->
+
+
+        <!-- PAGE 3 -->
+        <div data-role="page" id="page3">
+            <!-- header -->
+            <div data-role="header" data-position="fixed">
+                <div class="logo">
+                    <a href="#page1"><img src="img/logo.png" class="ui-btn-left" /></a>
+                </div>
+                <h1>Sent messages</h1>
+                <div class="settings">
+                    <a class="settingslink" href="#page5"><img  src="img/cog.png"  /></a>
+                </div>
+            </div>
+            <!-- end of header -->
+            <!-- main content -->
+            <div data-role="main" class="ui-content">
+                <ul data-role="listview" class="page3-list">
+                </ul>
+            </div>
+            <!-- end of main content -->
+            <!-- footer -->
+            <div data-role="footer" data-position="fixed">
+                <nav data-role="navbar" class="ui-navbar" role="navigation">
+                    <ul>
+                        <li>
+                            <a href="#page1" data-transition="slide" data-direction="reverse">
+                                  <div class="not-marker not">
+                                    0
+                                </div>
+                                <img src="img/globe.png" alt="globe">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#page2" data-transition="slide" data-direction="reverse">
+                                  <div class="not-received not">
+                                    0
+                                </div>
+                                <img src="img/inbox_in.png" alt="inbox_in">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#page3" class="ui-btn-active ui-state-persist" data-transition="slide">
+                                  <div class="not-sent not">
+                                    0
+                                </div>
+                                <img src="img/inbox_out.png" alt="inbox_out">
+                            </a>
+                        </li>
+                    </ul>
+                </nav>     
+            </div>
+            <!-- end footer -->
+            
+        </div>
+        <!-- END OF PAGE 3 -->
+
+
+        <!-- PAGE 4 -->
+        <div data-role="page" id="page4">
+            <!-- header -->
+            <div data-role="header" data-position="fixed">
+                <div class="logo">
+                    <a href="#page1"><img src="img/logo.png" class="ui-btn-left" /></a>
+                </div>
+                <h1>Compose message</h1>
+                <div class="settings">
+                    <a class="back" href=""><img  src="img/circle_left.png"  /></a>
+                </div>
+            </div>
+            <!-- end of header -->
+            <!-- main content -->
+            <div data-role="main" class="ui-content">
+                <form action="" id="submitForm" method="post">
+                    <textarea name="message" resize="none" id="message">Message...</textarea>
+                    <input type="hidden" id="id" name="id" value="">
+                    <input type="hidden" id="lat" name="lat" value="">
+                    <input type="hidden" id="lng" name="lng" value="">
+                    <input type="hidden" id="id_to" name="id_to" value="">
+                    <button type="submit" id="sendmessage" value="Send">Send message</button>
+                </form>
+            </div>
+            <!-- end of main content -->
+        <!-- END OF PAGE 4 -->
+        <script src="js/openfb.js"></script>
+        <script>
+
+            openFB.init('257789497758639'); // Defaults to sessionStorage for storing the Facebook token
+        
+        
+            checklogin();
+        //  Uncomment the line below to store the Facebook token in localStorage instead of sessionStorage
+        //  openFB.init('YOUR_FB_APP_ID', 'http://localhost/openfb/oauthcallback.html', window.localStorage);
+
+            function checklogin() {
+                alert(device.uuid);
+                console.log("checklogin");
+                  $.ajax({
+                    type: "GET",
+                    url: $baseUrl+"getfblogin.php?id="+device.uuid+"",
+                    cache: "false",
+                    dataType: "json",
+                    success: function(data){  
+                      if(!(data.fb[0].fbid) == "") {
+                        window.location.replace("/#page1");
+                        $('.settingslink').css("display", "block" );
+                        updateMarkers();
+                      }
+
+                    }
+                    ,
+                    error: function(){
+                    
+                    }
+                  });
+            }
+            function login() {
+                openFB.login('email',
+                        function() {
+                            alert('Facebook login succeeded');
+                            window.location.replace("/#page1");
+                            getInfo();
+                            $('.settingslink').css("display", "block" );
+                            updateMarkers();
+                        },
+                        function(error) {
+                          
+                        });
+            }
+
+            function getInfo() {
+                openFB.api({
+                    path: '/me',
+                    success: function(data) {
+                     connectToFB(data.id);
+                      
+                    },
+                    error: errorHandler});
+            }
+
+            function share() {
+                openFB.api({
+                    method: 'POST',
+                    path: '/me/feed',
+                    params: {
+                        message: 'Testing Facebook APIs'
+                    },
+                    success: function() {
+                        alert('the item was posted on Facebook');
+                    },
+                    error: errorHandler});
+            }
+
+            function revoke() {
+                openFB.revokePermissions(
+                        function() {
+                            connectToFB("");
+                            alert('Facebook is disconnected');
+                             window.location.replace("/#page1");
+                             $('.settingslink').css("display", "none" );
+                        },
+                        errorHandler);
+            }
+
+            function errorHandler(error) {
+                alert(error.message);
+            }
+
+        </script>
+        <script type="text/javascript" src="phonegap.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+    </body>
+</html>

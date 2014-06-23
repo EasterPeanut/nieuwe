@@ -20,9 +20,8 @@ $('p').on('swiperight',function(){
 
 //APPARAAT ID
 
-
+var id = device.uuid;
 $baseUrl = "http://pixes.nl/";
-var id;
 var mycookieLat;
 var mycookieLng;
 var myLat;
@@ -32,32 +31,29 @@ var newsentmessages;
 var sentmessages = new Array();
 var receivedmessages = new Array();
 var markers = new Array();
+
 getCookie();
   loadMessages();
   hideNot();
   updateUserInfo();
 
-
+function setuserID(uid) {
+  var id = uid;
+}
 window.setInterval(function(){
   notCheck();
   hideNot();
-}, 10000);
-window.setInterval(function(){
-    showNot();
+   showNot();
     checkNewMessages();
     makeCookie();
+}, 10000);
 
 
-}, 2000);
-
-function setuserID(uid) {
-  id = uid;
-}
 function updateUserInfo() {
-  alert(id);
+  console.log("updateuserinfo" + id);
   $.ajax({
     type: "GET",
-    url: $baseUrl+"updateuser.php?id="+id+"&lat="+myLat+"&lon="+myLng+"",
+    url: "http://pixes.nl/updateuser.php?id="+id+"&lat="+myLat+"&lon="+myLng+"",
     cache: "false",
     dataType: "json",
     success: function(data){  
@@ -71,7 +67,7 @@ function updateUserInfo() {
 function makeCookie() {
    $.ajax({
     type: "GET",
-    url: $baseUrl+"updatecookie.php?id="+id+"&sent="+sentmessages.length+"&received="+receivedmessages.length+"&marker="+markers.length+"&lat="+myLat+"&lng="+myLng,
+    url: "http://pixes.nl/updatecookie.php?id="+id+"&sent="+sentmessages.length+"&received="+receivedmessages.length+"&marker="+markers.length+"&lat="+myLat+"&lng="+myLng,
     cache: "false",
     dataType: "json",
     success: function(data){  
@@ -85,7 +81,7 @@ function makeCookie() {
 function getCookie() {
    $.ajax({
     type: "GET",
-    url: $baseUrl+"getcookie.php?id="+id+"",
+    url: "http://pixes.nl/getcookie.php?id="+id+"",
     cache: "false",
     dataType: "json",
     success: function(data){  
@@ -175,7 +171,7 @@ if(newsentmessages > 0) {
 function showNot() {
   $.ajax({
     type: "GET",
-    url: $baseUrl+"getmessages.php?id="+id,
+    url: "http://pixes.nl/getmessages.php?id="+id,
     cache: "false",
     dataType: "json",
     success: function(data){  
@@ -246,7 +242,7 @@ function showNot() {
 
  $.ajax({
     type: "GET",
-    url: $baseUrl+"getchords.php?id="+id+"&lat="+myLat+"&lon="+myLng+"",
+    url: "http://pixes.nl/getchords.php?id="+id+"&lat="+myLat+"&lon="+myLng+"",
     cache: "false",
     dataType: "json",
     success: function(data){  
@@ -335,7 +331,7 @@ $(document).on('submit','#submitForm', function(e) {
 function connectToFB(fbid) {
    $.ajax({
     type: "GET",
-    url: $baseUrl+"connecttofb.php?id="+id+"&fbid="+fbid+"&lon="+myLng+"&lat="+myLat,
+    url: "http://pixes.nl/connecttofb.php?id="+id+"&fbid="+fbid+"&lon="+myLng+"&lat="+myLat,
     cache: "false",
     dataType: "json",
     success: function(data){  
@@ -354,7 +350,7 @@ function loadMessages(){
 
   $.ajax({
     type: "GET",
-    url: $baseUrl+"getmessages.php?id="+id,
+    url: "http://pixes.nl/getmessages.php?id="+id,
     cache: "false",
     dataType: "json",
     success: function(data){  

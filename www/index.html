@@ -35,7 +35,7 @@
         <script src="js/jquery.mobile.custom.min.js"></script>
 
         <script src="js/functions.js"></script>
-
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
         <link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript" src="js/googlemaps.js"></script>
 
@@ -54,7 +54,10 @@
         function onDeviceReady() {
             var element = document.getElementById('deviceProperties');
             element.innerHTML = 'Device UUID: '+ device.uuid;
-            setuserID(device.uuid);
+            if(typeof id === 'undefined'){
+                console.log("kak");
+                setuserID(device.uuid);
+            };
             updateUserInfo();
             isDeviceReady = true;
         }
@@ -382,11 +385,11 @@
         //  openFB.init('YOUR_FB_APP_ID', 'http://localhost/openfb/oauthcallback.html', window.localStorage);
 
             function checklogin() {
-                alert(device.uuid);
+           
                 console.log("checklogin");
                   $.ajax({
                     type: "GET",
-                    url: $baseUrl+"getfblogin.php?id="+device.uuid+"",
+                    url: "http://pixes.nl/getfblogin.php?id="+id+"",
                     cache: "false",
                     dataType: "json",
                     success: function(data){  

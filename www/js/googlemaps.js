@@ -10,7 +10,7 @@ var map;
     console.log(mylat);
   $.ajax({
     type: "GET",
-    url: $baseUrl+"getchords.php?id="+id+"&lat="+mylat+"&lon="+mylon+"",
+    url:"http://pixes.nl/getchords.php?id="+id+"&lat="+mylat+"&lon="+mylon+"",
     cache: "false",
     dataType: "json",
     success: function(data){  

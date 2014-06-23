@@ -51,16 +51,7 @@
         });
         // device APIs are available
         //
-        function onDeviceReady() {
-            var element = document.getElementById('deviceProperties');
-            element.innerHTML = 'Device UUID: '+ device.uuid;
-            if(typeof id === 'undefined'){
-                console.log("kak");
-                setuserID(device.uuid);
-            };
-            updateUserInfo();
-            isDeviceReady = true;
-        }
+        
         function getGeolocation() {
             navigator.geolocation.getCurrentPosition(onGetGeolocationSuccess, onGetGeolocationError);
 

@@ -19,9 +19,19 @@ $('p').on('swiperight',function(){
 */ 
 
 //APPARAAT ID
+var id;
+function onDeviceReady() {
+            var element = document.getElementById('deviceProperties');
+            element.innerHTML = 'Device UUID: '+ device.uuid;
+            if(typeof id === 'undefined'){
+                console.log("kak");
+               id = device.uuid;
+            };
+            updateUserInfo();
+            isDeviceReady = true;
+        }
 
-var id = device.uuid;
-$baseUrl = "http://pixes.nl/";
+
 var mycookieLat;
 var mycookieLng;
 var myLat;
